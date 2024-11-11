@@ -1,0 +1,49 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Voter Eligibility Checker</title>
+</head>
+<body>
+    <h1>Check Your Voting Eligibility</h1>
+    <form method="post">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+        <label for="age">Age:</label>
+        <input type="text" id="age" name="age" required><br><br>
+        <input type="submit" value="Check Eligibility">
+    </form>
+
+    <%
+        // Check if the form has been submitted
+        String name = request.getParameter("name");
+        String ageStr = request.getParameter("age");
+
+        if (name != null && ageStr != null) {
+            try {
+                // Trim and validate age input
+                int age = Integer.parseInt(ageStr.trim());
+
+                // Display eligibility message
+                if (age >= 18) {
+    %>
+                    <h2>Hello <%= name %>, you are eligible to vote!</h2>
+    <%
+                } else {
+    %>
+                    <h2>Hello <%= name %>, you are not eligible to vote yet.</h2>
+    <%
+                }
+            } catch (NumberFormatException e) {
+    %>
+                <h3 style="color:red;">Error: Please enter a valid numeric age.</h3>
+    <%
+            }
+        } else if (request.getMethod().equalsIgnoreCase("POST")) {
+    %>
+            <h3 style="color:red;">Error: Name and age are required fields!</h3>
+    <%
+        }
+    %>
+</body>
+</html>

@@ -1,0 +1,146 @@
+package com.postgresql;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Scanner;
+
+public class StudentManagementSystem {
+    private static final String DB_URL = "jdbc:postgresql://localhost:5432/";
+    private static final String DB_NAME = "Student";
+    private static final String USER = "postgres";
+    private static final String PASSWORD = "password";
+
+    public static void main(String[] args) {
+        try {
+           
+
+            // Step 2: Create the Registration table
+            createTable();
+
+            // Step 3: Insert records
+            insertRecords();
+
+            // Step 4: Display records
+            displayRecords();
+
+            // Step 5: Update records
+            updateRecords();
+
+            // Step 6: Display records after update
+            displayRecords();
+
+            // Step 7: Delete a record
+            deleteRecord();
+
+            // Step 8: Display records after deletion
+            displayRecords();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    private static void createTable() {
+        String dbUrl = DB_URL + DB_NAME;
+        try (Connection conn = DriverManager.getConnection(dbUrl, USER, PASSWORD);
+             Statement stmt = conn.createStatement()) {
+            String sql = "CREATE TABLE IF NOT EXISTS Registration (" +
+                         "id SERIAL PRIMARY KEY, " +
+                         "name VARCHAR(100), " +
+                         "address VARCHAR(150), " +
+                         "program VARCHAR(50))";
+            stmt.executeUpdate(sql);
+            System.out.println("Table 'Registration' created successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void insertRecords() {
+        String dbUrl = DB_URL + DB_NAME;
+        try (Connection conn = DriverManager.getConnection(dbUrl, USER, PASSWORD)) {
+            String sql = "INSERT INTO Registration (name, address, program) VALUES (?, ?, ?)";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+
+            // Example records
+            String[][] records = {
+                {"John Doe", "123 Main St", "Computer Science"},
+                {"Jane Smith", "456 Oak Ave", "Mathematics"},
+                {"Michael Johnson", "789 Pine Rd", "Physics"},
+                {"Emily Davis", "321 Maple St", "Engineering"}
+            };
+
+            for (String[] record : records) {
+                pstmt.setString(1, record[0]);
+                pstmt.setString(2, record[1]);
+                pstmt.setString(3, record[2]);
+                pstmt.executeUpdate();
+            }
+            System.out.println("Records inserted successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void displayRecords() {
+        String dbUrl = DB_URL + DB_NAME;
+        try (Connection conn = DriverManager.getConnection(dbUrl, USER, PASSWORD);
+             Statement stmt = conn.createStatement()) {
+            String sql = "SELECT * FROM Registration";
+            ResultSet rs = stmt.executeQuery(sql);
+
+            System.out.println("\nDisplaying records:");
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String address = rs.getString("address");
+                String program = rs.getString("program");
+                System.out.println("ID: " + id + ", Name: " + name + ", Address: " + address + ", Program: " + program);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void updateRecords() {
+        String dbUrl = DB_URL + DB_NAME;
+        try (Connection conn = DriverManager.getConnection(dbUrl, USER, PASSWORD)) {
+            String sql = "UPDATE Registration SET program = ? WHERE id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+
+            // Update program for student with ID 100
+            pstmt.setString(1, "Data Science");
+            pstmt.setInt(2, 1); // Change as needed based on actual ID
+            pstmt.executeUpdate();
+
+            // Update program for student with ID 101
+            pstmt.setString(1, "Biology");
+            pstmt.setInt(2, 2); // Change as needed based on actual ID
+            pstmt.executeUpdate();
+
+            System.out.println("Records updated successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void deleteRecord() {
+        String dbUrl = DB_URL + DB_NAME;
+        try (Connection conn = DriverManager.getConnection(dbUrl, USER, PASSWORD)) {
+            String sql = "DELETE FROM Registration WHERE id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+
+            pstmt.setInt(1, 2); // ID to delete (adjust as needed)
+            pstmt.executeUpdate();
+
+            System.out.println("Record deleted successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
